@@ -101,7 +101,6 @@ it('fails when resolver is not callable', function () {
 
     $ref = new ReflectionClass($check);
     $prop = $ref->getProperty('resolveChainUsing');
-    $prop->setAccessible(true);
     $prop->setValue($check, 'not-a-callable');
 
     $result = $check->run();
