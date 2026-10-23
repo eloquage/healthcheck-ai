@@ -2,146 +2,70 @@
 
 ![Healthcheck AI checks](art/banner.png)
 
-[![Tests](https://github.com/eloquage/healthcheck-ai/actions/workflows/run-tests.yml/badge.svg)](https://github.com/eloquage/healthcheck-ai/actions)
-[![Packagist License](https://img.shields.io/badge/Licence-MIT-blue)](http://choosealicense.com/licenses/mit/)
-[![Latest Stable Version](https://img.shields.io/packagist/v/illuma-law/healthcheck-ai?label=Version)](https://packagist.org/packages/illuma-law/healthcheck-ai)
+A [Spatie Laravel Health](https://spatie.be/docs/laravel-health) add-on for
+checking Laravel AI prompt chains, embedding chains, and agent registries.
 
-A comprehensive suite of AI health checks for Spatie's [Laravel Health](https://spatie.be/docs/laravel-health/v1/introduction) package.
+[![Tests](https://github.com/eloquage/healthcheck-ai/actions/workflows/run-tests.yml/badge.svg)](https://github.com/eloquage/healthcheck-ai/actions/workflows/run-tests.yml)
+[![Latest Version](https://img.shields.io/packagist/v/illuma-law/healthcheck-ai)](https://packagist.org/packages/illuma-law/healthcheck-ai)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Requires PHP 8.3+, Laravel 11, 12, or 13, Laravel AI SDK 0.6+, and Spatie Laravel Health 1.39+. The checks make real provider requests when they run; configure credentials, keep the built-in cache enabled, and choose a canary that is safe and inexpensive for your providers.
+Requires PHP 8.3+, Laravel 11–13, Laravel AI SDK 0.6+, and Spatie Laravel
+Health 1.39+.
 
-This package provides robust health checks specifically designed to monitor your AI integrations, ensuring that your LLM prompt providers, embedding chains, and AI Agent registries are operational and properly configured.
+## Install
 
-## Features
-
-- **Prompt Chain Check:** Validates your LLM failover chains (e.g., OpenAI → Anthropic) by sending a small canary prompt.
-- **Embedding Chain Check:** Verifies that your embedding providers are generating vectors with the expected dimensions.
-- **Agent Registry Check:** Inspects your AI agents to ensure that `Model` and `Provider` attributes are present and that the corresponding API credentials exist in your environment.
-- **Caching:** Expensive API calls to AI providers are cached to prevent your health check endpoint from exhausting your rate limits.
-
-## Installation
-
-Require this package with composer:
-
-```shell
+```bash
 composer require illuma-law/healthcheck-ai
+php artisan vendor:publish --tag=healthcheck-ai-config
 ```
 
-## Configuration
+## Register checks
 
-You can publish the configuration file to customize the default cache TTLs, embedding dimensions, and canary texts used during the checks:
-
-```shell
-php artisan vendor:publish --tag="healthcheck-ai-config"
-```
-
-This will create a `config/healthcheck-ai.php` file:
-
-```php
-return [
-    // How long to cache embedding check results to save API calls
-    'embedding_cache_ttl_seconds' => 300,
-    
-    // Default expected dimensions for vector embeddings
-    'embedding_dimensions' => 1024,
-    
-    // The short text sent to the embedding provider
-    'embedding_canary_text' => 'AI embedding health check',
-    
-    // How long to cache the LLM prompt check results
-    'prompt_cache_ttl_seconds' => 300,
-    
-    // The prompt sent to the LLM to verify it is responsive
-    'prompt_text' => 'Reply with exactly: OK',
-    
-    // Request timeout in seconds
-    'prompt_timeout_seconds' => 25,
-];
-```
-
-## Usage & Integration
-
-Add the checks to your `Health::checks()` registration within a Service Provider (usually `AppServiceProvider`).
-
-### 1. Prompt Chain Check
-
-This check monitors a sequence of LLM providers. If the primary provider fails but a fallback succeeds, it marks the health check as degraded (Warning) instead of failing completely.
+Add the checks to your health registration. Configure the same provider and
+model names used by your application. These checks make provider requests, so
+enable caching and use a small, low-cost canary.
 
 ```php
 use IllumaLaw\HealthCheckAi\AiPromptChainHealthCheck;
-use Spatie\Health\Facades\Health;
-
-Health::checks([
-    AiPromptChainHealthCheck::new()
-        ->cacheTtl(600) // Optional override
-        ->timeout(10) // Optional override
-        ->resolveChainUsing(function () {
-            // Define your fallback chain
-            return [
-                ['provider' => 'openai', 'model' => 'gpt-4o'],
-                ['provider' => 'anthropic', 'model' => 'claude-3-5-sonnet-latest'],
-            ];
-        }),
-]);
-```
-
-### 2. Embedding Chain Check
-
-This check is vital if you rely on vector embeddings (e.g., pgvector or Typesense). It queries your embedding models and verifies that the output vectors match your expected dimensions.
-
-```php
 use IllumaLaw\HealthCheckAi\AiEmbeddingChainHealthCheck;
 use Spatie\Health\Facades\Health;
 
 Health::checks([
+    AiPromptChainHealthCheck::new()
+        ->resolveChainUsing(fn () => [
+            ['provider' => 'openai', 'model' => 'gpt-4o-mini'],
+        ]),
+
     AiEmbeddingChainHealthCheck::new()
-        ->dimensions(1536) // e.g., OpenAI text-embedding-3-small
-        ->resolveChainUsing(function () {
-            return [
-                ['provider' => 'openai', 'model' => 'text-embedding-3-small'],
-            ];
-        }),
+        ->dimensions(1536)
+        ->resolveChainUsing(fn () => [
+            ['provider' => 'openai', 'model' => 'text-embedding-3-small'],
+        ]),
 ]);
 ```
 
-### 3. Agent Registry Check
-
-If you are using the `laravel/ai` SDK with attributes for Agents, this check inspects a given list of Agent classes using PHP Reflection. It verifies that each class defines its `Provider` and `Model` attributes and that your application has the credentials required for that provider.
+When a primary model fails but a fallback works, the chain check reports a
+warning. The embedding check also warns when a returned vector has the wrong
+dimension. The agent registry check validates configured agent classes and
+credential availability:
 
 ```php
 use IllumaLaw\HealthCheckAi\AiAgentRegistryCheck;
-use Spatie\Health\Facades\Health;
 
-Health::checks([
-    AiAgentRegistryCheck::new()
-        ->resolveAgentsUsing(function () {
-            // Return a list of your Agent class names
-            return [
-                 \App\Agents\SupportAgent::class,
-                 \App\Agents\SummarizerAgent::class,
-            ];
-        })
-        ->hasCredentialsUsing(function (string $provider) {
-            // Define how to check if credentials exist for a given provider
-            if ($provider === 'openai') {
-                return !empty(config('ai.providers.openai.api_key'));
-            }
-            if ($provider === 'anthropic') {
-                return !empty(config('ai.providers.anthropic.api_key'));
-            }
-            return false;
-        }),
-]);
+AiAgentRegistryCheck::new()
+    ->resolveAgentsUsing(fn () => [App\Agents\SupportAgent::class])
+    ->hasCredentialsUsing(fn (string $provider) => filled(config("ai.providers.{$provider}.api_key")));
 ```
 
-## Testing
+Published settings in `config/healthcheck-ai.php` control cache TTLs, the
+embedding dimension and canary text, and prompt timeout and canary text.
 
-Run the test suite:
+## Test
 
-```shell
+```bash
 composer test
+composer analyse
+vendor/bin/pint --test
 ```
 
-## License
-
-The MIT License (MIT). See [LICENSE](LICENSE) for details.
+MIT licensed. See [LICENSE](LICENSE).
