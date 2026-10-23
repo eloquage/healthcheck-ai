@@ -1,6 +1,6 @@
 # Healthcheck AI for Laravel
 
-[![Tests](https://github.com/illuma-law/healthcheck-ai/actions/workflows/run-tests.yml/badge.svg)](https://github.com/illuma-law/healthcheck-ai/actions)
+[![Tests](https://github.com/eloquage/healthcheck-ai/actions/workflows/run-tests.yml/badge.svg)](https://github.com/eloquage/healthcheck-ai/actions)
 [![Packagist License](https://img.shields.io/badge/Licence-MIT-blue)](http://choosealicense.com/licenses/mit/)
 [![Latest Stable Version](https://img.shields.io/packagist/v/illuma-law/healthcheck-ai?label=Version)](https://packagist.org/packages/illuma-law/healthcheck-ai)
 
