@@ -129,8 +129,8 @@ final class AiEmbeddingChainHealthCheck extends Check
                 $latencyMs = round(((float) hrtime(true) - (float) $startNs) / 1_000_000, 1);
                 $vector = $response->embeddings[0] ?? [];
 
-                $status = (is_array($vector) && count($vector) === $dimensions) ? 'ok' : 'dimension_mismatch';
-                $vectorDim = is_array($vector) ? count($vector) : 0;
+                $status = count($vector) === $dimensions ? 'ok' : 'dimension_mismatch';
+                $vectorDim = count($vector);
 
                 $results[] = [
                     'index' => $index,
