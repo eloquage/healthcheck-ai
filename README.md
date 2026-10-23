@@ -1,10 +1,14 @@
 # Healthcheck AI for Laravel
 
+![Healthcheck AI checks](art/banner.png)
+
 [![Tests](https://github.com/eloquage/healthcheck-ai/actions/workflows/run-tests.yml/badge.svg)](https://github.com/eloquage/healthcheck-ai/actions)
 [![Packagist License](https://img.shields.io/badge/Licence-MIT-blue)](http://choosealicense.com/licenses/mit/)
 [![Latest Stable Version](https://img.shields.io/packagist/v/illuma-law/healthcheck-ai?label=Version)](https://packagist.org/packages/illuma-law/healthcheck-ai)
 
 A comprehensive suite of AI health checks for Spatie's [Laravel Health](https://spatie.be/docs/laravel-health/v1/introduction) package.
+
+Requires PHP 8.3+, Laravel 11, 12, or 13, Laravel AI SDK 0.6+, and Spatie Laravel Health 1.39+. The checks make real provider requests when they run; configure credentials, keep the built-in cache enabled, and choose a canary that is safe and inexpensive for your providers.
 
 This package provides robust health checks specifically designed to monitor your AI integrations, ensuring that your LLM prompt providers, embedding chains, and AI Agent registries are operational and properly configured.
 
@@ -140,4 +144,4 @@ composer test
 
 ## License
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+The MIT License (MIT). See [LICENSE](LICENSE) for details.
