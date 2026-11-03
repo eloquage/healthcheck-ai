@@ -6,7 +6,7 @@ A [Spatie Laravel Health](https://spatie.be/docs/laravel-health) add-on for
 checking Laravel AI prompt chains, embedding chains, and agent registries.
 
 [![Tests](https://github.com/eloquage/healthcheck-ai/actions/workflows/run-tests.yml/badge.svg)](https://github.com/eloquage/healthcheck-ai/actions/workflows/run-tests.yml)
-[![Latest Version](https://img.shields.io/packagist/v/illuma-law/healthcheck-ai)](https://packagist.org/packages/illuma-law/healthcheck-ai)
+[![Latest Version](https://img.shields.io/packagist/v/eloquage/healthcheck-ai)](https://packagist.org/packages/eloquage/healthcheck-ai)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Requires PHP 8.3+, Laravel 11–13, Laravel AI SDK 0.6+, and Spatie Laravel
@@ -15,7 +15,7 @@ Health 1.39+.
 ## Install
 
 ```bash
-composer require illuma-law/healthcheck-ai
+composer require eloquage/healthcheck-ai
 php artisan vendor:publish --tag=healthcheck-ai-config
 ```
 

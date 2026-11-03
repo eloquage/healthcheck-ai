@@ -1,4 +1,4 @@
-# illuma-law/healthcheck-ai
+# eloquage/healthcheck-ai
 
 AI health checks for Spatie's Laravel Health package. Monitors LLM prompt providers, embedding chains, and AI Agent registries.
 
