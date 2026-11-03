@@ -2,7 +2,7 @@
     "name": "eloquage/healthcheck-ai",
     "description": "Focused AI failover chain and agent registry health checks for Spatie's Laravel Health package.",
     "keywords": [
-        "illuma-law",
+        "eloquage",
         "laravel",
         "health",
         "ai",
@@ -12,8 +12,7 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "illuma-law",
-            "email": "support@illuma.law",
+            "name": "Eloquage",
             "role": "Developer"
         }
     ],
